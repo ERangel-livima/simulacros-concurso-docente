@@ -288,7 +288,7 @@
   function retryQuiz(){ startQuiz(S.currentQuizId); }
   function goHome(){ stopTimer(); S.view='home'; render(); }
   function goHistory(){ S.view='history'; render(); }
-  function goAdmin(){ S.view='admin'; render(); if(!S.admin.loaded) loadAdminData(); }
+  function goAdmin(){ S.view='admin'; render(); loadAdminData(); }
 
   async function setUserStatus(userId, status){
     const { error } = await sbClient.from('profiles').update({ status }).eq('id', userId);
@@ -629,7 +629,7 @@
 
     return `
     <div class="wrap">
-      <div class="topbar"><div class="brand" onclick="APP.home()"><span class="mark">CD</span><span class="name">Panel de administrador</span></div><button class="btn ghost small" onclick="APP.home()">Volver</button></div>
+      <div class="topbar"><div class="brand" onclick="APP.home()"><span class="mark">CD</span><span class="name">Panel de administrador</span></div><div class="topnav-actions"><button class="btn ghost small" onclick="APP.admin()">Actualizar datos</button><button class="btn ghost small" onclick="APP.home()">Volver</button></div></div>
       <div class="eyebrow">Solo administrador</div>
       <h1 style="font-size:26px;margin:.4rem 0 1rem;">Estadísticas generales</h1>
       <div class="stat-grid">
