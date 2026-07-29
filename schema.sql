@@ -9,8 +9,11 @@ create table if not exists public.profiles (
   full_name text,
   email text,
   is_admin boolean not null default false,
+  status text not null default 'pendiente',   -- 'pendiente' | 'aprobado' | 'rechazado'
   created_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists status text not null default 'pendiente';
 
 alter table public.profiles enable row level security;
 
@@ -25,13 +28,38 @@ create policy "usuarios actualizan su propio perfil"
   on public.profiles for update
   using (auth.uid() = id);
 
+-- Función auxiliar para comprobar si el usuario actual es administrador,
+-- sin causar recursión infinita en las políticas de seguridad (RLS)
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
+$$;
+
 -- Los administradores pueden ver todos los perfiles
 drop policy if exists "admins ven todos los perfiles" on public.profiles;
 create policy "admins ven todos los perfiles"
   on public.profiles for select
-  using (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  using (public.is_admin());
+
+-- Los administradores pueden actualizar cualquier perfil (para aprobar/rechazar registros)
+drop policy if exists "admins actualizan cualquier perfil" on public.profiles;
+create policy "admins actualizan cualquier perfil"
+  on public.profiles for update
+  using (public.is_admin());
+
+-- Función auxiliar: ¿el usuario actual está aprobado (o es admin)?
+create or replace function public.is_approved()
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select coalesce((select (status = 'aprobado' or is_admin) from public.profiles where id = auth.uid()), false);
+$$;
 
 -- 2) Función y trigger: crear automáticamente un perfil cuando alguien se registra
 create or replace function public.handle_new_user()
@@ -71,11 +99,11 @@ alter table public.attempts enable row level security;
 create index if not exists attempts_user_id_idx on public.attempts(user_id);
 create index if not exists attempts_quiz_id_idx on public.attempts(quiz_id);
 
--- Un usuario puede insertar y ver únicamente sus propios intentos
+-- Un usuario puede insertar y ver únicamente sus propios intentos (solo si está aprobado)
 drop policy if exists "usuarios insertan sus propios intentos" on public.attempts;
 create policy "usuarios insertan sus propios intentos"
   on public.attempts for insert
-  with check (auth.uid() = user_id);
+  with check (auth.uid() = user_id and public.is_approved());
 
 drop policy if exists "usuarios ven sus propios intentos" on public.attempts;
 create policy "usuarios ven sus propios intentos"
@@ -86,9 +114,7 @@ create policy "usuarios ven sus propios intentos"
 drop policy if exists "admins ven todos los intentos" on public.attempts;
 create policy "admins ven todos los intentos"
   on public.attempts for select
-  using (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  using (public.is_admin());
 
 -- ============================================================
 -- PASO FINAL (hazlo tú, después de registrarte por primera vez en la plataforma):

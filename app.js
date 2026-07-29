@@ -117,20 +117,28 @@
   }
   function stopTimer(){ if(timerInt) clearInterval(timerInt); timerInt=null; }
 
+  function statusGate(){
+    if(!S.profile) return 'home';
+    if(S.profile.is_admin) return 'home';
+    if(S.profile.status === 'aprobado') return 'home';
+    if(S.profile.status === 'rechazado') return 'rejected';
+    return 'pending';
+  }
+
   // ---------- AUTH ----------
   async function boot(){
     try{
       const { data:{ session }, error } = await sbClient.auth.getSession();
       if(error) throw error;
       S.session = session;
-      if(session){ await loadProfileAndAttempts(); S.view='home'; }
+      if(session){ await loadProfileAndAttempts(); S.view=statusGate(); }
       else { S.view='auth'; }
       S.booting=false;
       render();
 
       sbClient.auth.onAuthStateChange(async (event, session)=>{
         S.session = session;
-        if(event==='SIGNED_IN'){ await loadProfileAndAttempts(); S.view='home'; render(); }
+        if(event==='SIGNED_IN'){ await loadProfileAndAttempts(); S.view=statusGate(); render(); }
         if(event==='SIGNED_OUT'){ S.profile=null; S.myAttempts=[]; S.view='auth'; render(); }
       });
     }catch(e){
@@ -282,6 +290,12 @@
   function goHistory(){ S.view='history'; render(); }
   function goAdmin(){ S.view='admin'; render(); if(!S.admin.loaded) loadAdminData(); }
 
+  async function setUserStatus(userId, status){
+    const { error } = await sbClient.from('profiles').update({ status }).eq('id', userId);
+    if(error){ alert('No se pudo actualizar: '+error.message); return; }
+    await loadAdminData();
+  }
+
   async function loadAdminData(){
     const { data:profiles } = await sbClient.from('profiles').select('*').order('created_at',{ascending:false});
     const { data:attempts } = await sbClient.from('attempts').select('*').order('created_at',{ascending:false});
@@ -332,6 +346,31 @@
         </form>
         <p class="auth-note">Tus resultados quedan guardados en tu cuenta y podrás consultarlos cuando quieras.</p>
       </div>
+    </div>`;
+  }
+
+  // ---------- RENDER: PENDING / REJECTED ----------
+  function renderPending(){
+    return `
+    <div class="wrap narrow" style="padding-top:4rem;text-align:center;">
+      <div class="eyebrow" style="justify-content:center;">Registro recibido</div>
+      <h1 style="font-size:24px;margin:.6rem 0 1rem;">Tu cuenta está pendiente de aprobación</h1>
+      <div class="auth-card" style="text-align:left;">
+        <p style="font-size:14px;color:var(--ink-soft);margin-top:0;">Hola ${esc(S.profile.full_name)}, tu registro fue recibido correctamente. Un administrador debe aprobar tu cuenta antes de que puedas acceder a los simulacros.</p>
+        <p style="font-size:13px;color:var(--ink-soft);">Vuelve a intentarlo más tarde, o contacta a quien te compartió esta plataforma.</p>
+      </div>
+      <button class="btn ghost" style="margin-top:1.4rem;" onclick="APP.logout()">Salir</button>
+    </div>`;
+  }
+  function renderRejected(){
+    return `
+    <div class="wrap narrow" style="padding-top:4rem;text-align:center;">
+      <div class="eyebrow" style="justify-content:center;">Solicitud no aprobada</div>
+      <h1 style="font-size:24px;margin:.6rem 0 1rem;">Tu registro no fue aprobado</h1>
+      <div class="auth-card" style="text-align:left;">
+        <p style="font-size:14px;color:var(--ink-soft);margin-top:0;">Si consideras que esto es un error, contacta al administrador de esta plataforma.</p>
+      </div>
+      <button class="btn ghost" style="margin-top:1.4rem;" onclick="APP.logout()">Salir</button>
     </div>`;
   }
 
@@ -541,6 +580,18 @@
     const totalUsers = profiles.length;
     const totalAttempts = attempts.length;
     const avgPct = attempts.length ? Math.round(attempts.reduce((s,a)=>s+a.pct,0)/attempts.length) : 0;
+    const pending = profiles.filter(p=>p.status==='pendiente' && !p.is_admin);
+
+    const pendingRows = pending.map(p=>`
+      <tr>
+        <td>${esc(p.full_name||'')}</td>
+        <td>${esc(p.email||'')}</td>
+        <td>${fmtDate(p.created_at)}</td>
+        <td style="display:flex;gap:.4rem;">
+          <button class="btn small" onclick="APP.approve('${p.id}')">Aprobar</button>
+          <button class="btn ghost small" onclick="APP.reject('${p.id}')">Rechazar</button>
+        </td>
+      </tr>`).join('');
 
     // por usuario
     const byUser = {};
@@ -555,6 +606,7 @@
       return `<tr>
         <td>${esc(u.profile.full_name||'')}${u.profile.is_admin?' <span class="badge-admin">Admin</span>':''}</td>
         <td>${esc(u.profile.email||'')}</td>
+        <td>${u.profile.is_admin ? 'aprobado' : esc(u.profile.status||'pendiente')}</td>
         <td>${n}</td>
         <td>${avg!==null?avg+'%':'—'}</td>
         <td>${weakest ? esc(weakest.cat)+' ('+weakest.pct+'%)' : '—'}</td>
@@ -586,6 +638,13 @@
         <div class="stat-box"><div class="n">${avgPct}%</div><div class="l">Promedio general</div></div>
       </div>
 
+      <h3 class="section-title" style="margin-top:1rem;">Solicitudes pendientes ${pending.length ? `(${pending.length})` : ''}</h3>
+      ${pending.length ? `
+      <table class="data-table">
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Registrado</th><th>Acción</th></tr></thead>
+        <tbody>${pendingRows}</tbody>
+      </table>` : `<p style="color:var(--ink-soft);font-size:14px;">No hay solicitudes pendientes por revisar.</p>`}
+
       <h3 class="section-title">Categorías más débiles del grupo (para orientar el curso)</h3>
       <p class="section-sub">Ordenadas de menor a mayor porcentaje de acierto, sumando a todos los usuarios.</p>
       ${catRows.map(r=>{
@@ -601,7 +660,7 @@
 
       <h3 class="section-title">Usuarios registrados</h3>
       <table class="data-table">
-        <thead><tr><th>Nombre</th><th>Correo</th><th>Intentos</th><th>Promedio</th><th>Punto más débil</th><th>Registrado</th></tr></thead>
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Estado</th><th>Intentos</th><th>Promedio</th><th>Punto más débil</th><th>Registrado</th></tr></thead>
         <tbody>${userRows || '<tr><td colspan="6">Sin usuarios aún</td></tr>'}</tbody>
       </table>
     </div>`;
@@ -612,6 +671,8 @@
     const app = appEl;
     if(S.booting){ app.innerHTML = '<div class="center-loading">Cargando…</div>'; return; }
     if(S.view==='auth') app.innerHTML = renderAuth();
+    else if(S.view==='pending') app.innerHTML = renderPending();
+    else if(S.view==='rejected') app.innerHTML = renderRejected();
     else if(S.view==='home') app.innerHTML = renderHome();
     else if(S.view==='quiz') app.innerHTML = renderQuiz();
     else if(S.view==='results') app.innerHTML = renderResults();
@@ -631,7 +692,9 @@
     retry: retryQuiz,
     home: goHome,
     history: goHistory,
-    admin: goAdmin
+    admin: goAdmin,
+    approve: (id)=>setUserStatus(id,'aprobado'),
+    reject: (id)=>setUserStatus(id,'rechazado')
   };
 
   boot();
