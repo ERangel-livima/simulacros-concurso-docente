@@ -3,20 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plataforma de Simulacros · Concurso Docente 2026</title>
+<title>Concursa Docente · Concurso Docente 2026</title>
+<link rel="icon" type="image/png" href="mark.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
 
 :root{
-  --ink:#1C2541;
-  --ink-soft:#374465;
-  --paper:#F3F4F0;
+  --ink:#0B1E40;
+  --ink-soft:#3D4C6B;
+  --paper:#F2F5F6;
   --paper-card:#FFFFFF;
-  --line:#DBDCD4;
-  --gold:#B98B2A;
-  --gold-soft:#F3E6C8;
-  --teal:#2F5D48;
-  --teal-soft:#DCEAE1;
+  --line:#DCE1E2;
+  --gold:#EF8F0C;
+  --gold-soft:#FBE6C8;
+  --teal:#157A8C;
+  --teal-soft:#DCEEF0;
+  --brand-green:#2E9B3C;
   --coral:#A8472C;
   --coral-soft:#F5DCD2;
   --radius:14px;
@@ -24,11 +26,17 @@
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  background:var(--paper);
+  background-color:var(--paper);
+  background-image:url('bg-wave.jpg');
+  background-size:cover;
+  background-position:top right;
+  background-attachment:fixed;
+  background-repeat:no-repeat;
   color:var(--ink);
   font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
   line-height:1.55;
   -webkit-font-smoothing:antialiased;
+  min-height:100vh;
 }
 h1,h2,h3,.serif{font-family:'Fraunces',ui-serif,Georgia,serif;font-weight:600;letter-spacing:-0.01em;}
 .wrap{max-width:920px;margin:0 auto;padding:2.5rem 1.5rem 5rem;}
@@ -43,6 +51,12 @@ h1,h2,h3,.serif{font-family:'Fraunces',ui-serif,Georgia,serif;font-weight:600;le
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:.6rem;}
 .brand{display:flex;align-items:center;gap:.6rem;cursor:pointer;}
 .brand .mark{width:30px;height:30px;border:1.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;font-size:14px;flex-shrink:0;}
+.mark-img{height:30px;width:auto;flex-shrink:0;}
+.logo-full-img{width:180px;height:auto;display:block;margin:0 auto 1rem;}
+.tagline-brand{text-align:center;font-size:13.5px;font-weight:600;margin-bottom:1.6rem;}
+.tagline-brand .n{color:var(--ink);}
+.tagline-brand .t{color:var(--teal);}
+.tagline-brand .g{color:var(--brand-green);}
 .brand .name{font-size:14px;font-weight:600;}
 .topnav-actions{display:flex;align-items:center;gap:.6rem;}
 .timer{font-size:13px;color:var(--ink-soft);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px;}
@@ -51,7 +65,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',ui-serif,Georgia,serif;font-weight:600;le
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;}
 @media(max-width:640px){.grid{grid-template-columns:1fr;}}
-.card{background:var(--paper-card);border:1px solid var(--line);border-radius:var(--radius);padding:1.4rem 1.4rem 1.2rem;display:flex;flex-direction:column;gap:.6rem;transition:border-color .15s ease;}
+.card{background:var(--paper-card);border:1px solid var(--line);border-radius:var(--radius);padding:1.4rem 1.4rem 1.2rem;display:flex;flex-direction:column;gap:.6rem;transition:border-color .15s ease;box-shadow:0 6px 24px rgba(11,30,64,0.06);}
 .card:hover{border-color:var(--ink);}
 .card .num{font-size:11px;letter-spacing:.1em;color:var(--gold);font-weight:600;text-transform:uppercase;}
 .card h3{font-size:19px;margin:0;}
@@ -110,7 +124,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',ui-serif,Georgia,serif;font-weight:600;le
 .section-sub{font-size:14px;color:var(--ink-soft);margin-bottom:1rem;}
 
 /* auth form */
-.auth-card{background:var(--paper-card);border:1px solid var(--line);border-radius:var(--radius);padding:2rem;}
+.auth-card{background:var(--paper-card);border:1px solid var(--line);border-radius:var(--radius);padding:2rem;box-shadow:0 8px 30px rgba(11,30,64,0.08);}
 .auth-tabs{display:flex;gap:.4rem;margin-bottom:1.4rem;}
 .auth-tab{flex:1;text-align:center;padding:.55rem;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ink-soft);}
 .auth-tab.active{background:var(--ink);color:#fff;}
