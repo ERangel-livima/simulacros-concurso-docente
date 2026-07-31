@@ -327,7 +327,7 @@
     return `
     <div class="wrap narrow">
       <div style="text-align:center;margin-bottom:1.2rem;">
-        <img src="assets/logo-full.png" class="logo-full-img" alt="Concursa Docente" />
+        <img src="logo-full.png" class="logo-full-img" alt="Concursa Docente" />
         <p class="tagline-brand"><span class="n">Prepárate.</span> <span class="t">Practica.</span> <span class="g">Gana tu plaza.</span></p>
       </div>
       <div class="auth-card">
@@ -400,7 +400,7 @@
     return `
     <div class="wrap">
       <div class="topbar">
-        <div class="brand"><img src="assets/mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">${esc(S.profile ? S.profile.full_name : '')}</span>${S.profile && S.profile.is_admin ? '<span class="badge-admin" style="margin-left:6px;">Admin</span>':''}</div>
+        <div class="brand"><img src="mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">${esc(S.profile ? S.profile.full_name : '')}</span>${S.profile && S.profile.is_admin ? '<span class="badge-admin" style="margin-left:6px;">Admin</span>':''}</div>
         <div class="topnav-actions">
           ${S.profile && S.profile.is_admin ? `<button class="btn ghost small" onclick="APP.admin()">Panel de administrador</button>`:''}
           <button class="btn ghost small" onclick="APP.history()">Mi historial</button>
@@ -477,7 +477,7 @@
     return `
     <div class="wrap">
       <div class="topbar">
-        <div class="brand" onclick="APP.home()"><img src="assets/mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">${esc(quiz.nombre)}</span></div>
+        <div class="brand" onclick="APP.home()"><img src="mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">${esc(quiz.nombre)}</span></div>
         <div class="timer"><span class="dot"></span><span id="timerDisplay">${fmtTime(S.elapsed)}</span></div>
       </div>
       <div class="progress-row">
@@ -517,7 +517,7 @@
 
     return `
     <div class="wrap">
-      <div class="topbar"><div class="brand" onclick="APP.home()"><img src="assets/mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Concurso Docente 2026</span></div></div>
+      <div class="topbar"><div class="brand" onclick="APP.home()"><img src="mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Concurso Docente 2026</span></div></div>
       <div class="eyebrow">${esc(quiz.nombre)}</div>
       <div class="result-head">
         <div class="sello"><span class="pct">${a.pct}%</span><span class="lbl">Resultado</span></div>
@@ -553,7 +553,7 @@
 
     return `
     <div class="wrap">
-      <div class="topbar"><div class="brand" onclick="APP.home()"><img src="assets/mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Mi historial</span></div></div>
+      <div class="topbar"><div class="brand" onclick="APP.home()"><img src="mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Mi historial</span></div></div>
       <div class="eyebrow">Historial de intentos</div>
       <h1 style="font-size:26px;margin:.4rem 0 1rem;">Tus resultados</h1>
       ${S.myAttempts.length===0 ? '<p style="color:var(--ink-soft);">Aún no has resuelto ningún simulacro.</p>' : `
@@ -574,7 +574,7 @@
   // ---------- RENDER: ADMIN ----------
   function renderAdmin(){
     if(!S.admin.loaded){
-      return `<div class="wrap"><div class="topbar"><div class="brand" onclick="APP.home()"><img src="assets/mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Panel de administrador</span></div></div><div class="center-loading">Cargando datos…</div></div>`;
+      return `<div class="wrap"><div class="topbar"><div class="brand" onclick="APP.home()"><img src="mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Panel de administrador</span></div></div><div class="center-loading">Cargando datos…</div></div>`;
     }
     const { profiles, attempts } = S.admin;
     const totalUsers = profiles.length;
@@ -629,7 +629,7 @@
 
     return `
     <div class="wrap">
-      <div class="topbar"><div class="brand" onclick="APP.home()"><img src="assets/mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Panel de administrador</span></div><div class="topnav-actions"><button class="btn ghost small" onclick="APP.admin()">Actualizar datos</button><button class="btn ghost small" onclick="APP.home()">Volver</button></div></div>
+      <div class="topbar"><div class="brand" onclick="APP.home()"><img src="mark.png" class="mark-img" alt="Concursa Docente"/><span class="name">Panel de administrador</span></div><div class="topnav-actions"><button class="btn ghost small" onclick="APP.admin()">Actualizar datos</button><button class="btn ghost small" onclick="APP.home()">Volver</button></div></div>
       <div class="eyebrow">Solo administrador</div>
       <h1 style="font-size:26px;margin:.4rem 0 1rem;">Estadísticas generales</h1>
       <div class="stat-grid">
